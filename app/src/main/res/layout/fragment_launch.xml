@@ -10,15 +10,17 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="255dp"
-            android:layout_height="254dp"
+            android:layout_width="229dp"
+            android:layout_height="203dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/ballot_logo_content_description"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.35"
-            app:srcCompat="@drawable/ballot_logo"
-            android:contentDescription="@string/ballot_logo_content_description" />
+            app:layout_constraintVertical_bias="0.249"
+            app:srcCompat="@drawable/ballot_logo" />
 
         <Button
             android:id="@+id/upcoming_elections_btn"
@@ -26,15 +28,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="96dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/colorPrimary"
             android:text="@string/upcoming_elections"
             android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/find_my_representatives_btn"
+            app:layout_constraintVertical_bias="0.05" />
 
         <Button
             android:id="@+id/find_my_representatives_btn"
@@ -49,7 +54,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/upcoming_elections_btn"
-            app:layout_constraintVertical_bias="0.194" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView"
+            app:layout_constraintVertical_bias="0.301" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
