@@ -5,25 +5,65 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.android.politicalpreparedness.database.ElectionDatabase
+import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
+import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
+import com.example.android.politicalpreparedness.election.adapter.ElectionListener
 
-class ElectionsFragment: Fragment() {
+class ElectionsFragment : Fragment() {
 
     //TODO: Declare ViewModel
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         //TODO: Add ViewModel values and create ViewModel
 
         //TODO: Add binding values
+        val binding = FragmentElectionBinding.inflate(inflater)
+
+        val application = requireNotNull(this.activity).application
+
+        val dataSource = ElectionDatabase.getInstance(application).electionDao
+
+        val viewModelFactory = ElectionsViewModelFactory(dataSource, application)
+
+        val electionsViewModel =
+            ViewModelProvider(
+                this, viewModelFactory
+            ).get(ElectionsViewModel::class.java)
+
+        binding.electionsViewModel = electionsViewModel
 
         //TODO: Link elections to voter info
 
         //TODO: Initiate recycler adapters
+        val manager = GridLayoutManager(activity, 1)
+        binding.electionsList.layoutManager = manager
+
+        val adapter = ElectionListAdapter(ElectionListener { id ->
+            // TODO: Handle election clicked after loading the list
+//            electionsViewModel.onElectionClicked(id)
+        })
+
+        binding.electionsList.adapter = adapter
+
+        electionsViewModel.upcomingElections.observe(viewLifecycleOwner, Observer {
+            adapter.submitList(it)
+        })
+
+        binding.lifecycleOwner = this
 
         //TODO: Populate recycler adapters
 
+        return binding.root
     }
 
     //TODO: Refresh adapters when fragment loads
