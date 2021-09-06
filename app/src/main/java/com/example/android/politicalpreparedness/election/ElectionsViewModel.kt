@@ -5,10 +5,8 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.CivicsApi
-import com.example.android.politicalpreparedness.network.CivicsApiService
 import com.example.android.politicalpreparedness.network.models.Election
 import kotlinx.coroutines.*
 import java.net.InetAddress
@@ -26,21 +24,33 @@ class ElectionsViewModel(
     val upcomingElections: LiveData<List<Election>>
         get() = _upcomingElections
 
+    private val _savedElections = MutableLiveData<List<Election>>()
+    val savedElections: LiveData<List<Election>>
+        get() = _savedElections
+
+    private val _navigateToSelectedElectionScreen = MutableLiveData<Election>()
+    val navigateToSelectedElectionScreen: LiveData<Election>
+        get() = _navigateToSelectedElectionScreen
+
     init {
         viewModelScope.launch {
             if (isInternetAvailable()) {
-                    val electionsFromInternet =
-                        CivicsApi.retrofitService.getElections()
-                            .await()
-                            .elections
+                val electionsFromInternet =
+                    CivicsApi.retrofitService.getElections()
+                        .await()
+                        .elections.filter {
+                            it.division.state != null && it.division.country != null && it.division.state.isNotEmpty() && it.division.country.isNotEmpty()
+                        }
 
-                    _upcomingElections.value = electionsFromInternet
+                _upcomingElections.value = electionsFromInternet
             } else {
                 Log.i(
                     "MainViewModel",
                     "No Internet connection available, not loading picture of day"
                 )
             }
+
+            _savedElections.value = database.getAll().value
         }
     }
 
@@ -53,6 +63,14 @@ class ElectionsViewModel(
                 return@withContext false
             }
         }
+    }
+
+    fun onUpcomingElectionClicked(selectedElection: Election) {
+        _navigateToSelectedElectionScreen.value = selectedElection
+    }
+
+    fun onNavigateToSelectedElectionScreenCompleted() {
+        _navigateToSelectedElectionScreen.value = null
     }
 
     //TODO: Create live data val for saved elections

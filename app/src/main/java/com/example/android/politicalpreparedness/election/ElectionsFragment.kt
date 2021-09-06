@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.politicalpreparedness.database.ElectionDatabase
 import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
@@ -48,15 +48,21 @@ class ElectionsFragment : Fragment() {
         val manager = GridLayoutManager(activity, 1)
         binding.electionsList.layoutManager = manager
 
-        val adapter = ElectionListAdapter(ElectionListener { id ->
-            // TODO: Handle election clicked after loading the list
-//            electionsViewModel.onElectionClicked(id)
+        val adapter = ElectionListAdapter(ElectionListener { selectedElection ->
+            electionsViewModel.onUpcomingElectionClicked(selectedElection)
         })
 
         binding.electionsList.adapter = adapter
 
         electionsViewModel.upcomingElections.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
+        })
+
+        electionsViewModel.navigateToSelectedElectionScreen.observe(viewLifecycleOwner, Observer { selectedElection ->
+            if (selectedElection != null) {
+                findNavController().navigate(ElectionsFragmentDirections.actionElectionsFragmentToVoterInfoFragment(selectedElection.id, selectedElection.division));
+                electionsViewModel.onNavigateToSelectedElectionScreenCompleted()
+            }
         })
 
         binding.lifecycleOwner = this
