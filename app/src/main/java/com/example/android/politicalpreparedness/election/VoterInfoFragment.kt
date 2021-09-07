@@ -1,14 +1,15 @@
 package com.example.android.politicalpreparedness.election
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.database.ElectionDatabase
 import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
+
 
 class VoterInfoFragment : Fragment() {
 
@@ -43,6 +44,17 @@ class VoterInfoFragment : Fragment() {
         voterInfoViewModel.retrieveVoterInformation(electionId, division)
 
         binding.voterInfoViewModel = voterInfoViewModel
+
+        voterInfoViewModel.openVotingLocations.observe(
+            viewLifecycleOwner,
+            Observer { openVotingLocations ->
+                if (openVotingLocations) {
+                    val uri: Uri = Uri.parse(voterInfoViewModel.votingLocationsUrl.value) // missing 'http://' will cause crashed
+                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                    startActivity(intent)
+                    voterInfoViewModel.onOpenVotingLocationsCompleted()
+                }
+            })
 
         //TODO: Handle loading of URLs
 

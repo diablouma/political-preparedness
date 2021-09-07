@@ -6,6 +6,9 @@
     <string name="ballot_logo_content_description">Ballot Logo</string>
     <string name="saved_elections">SAVED ELECTIONS</string>
     <string name="error_retrieving_voter_info">Error while retrieving voter info</string>
+    <string name="election_information">Election Information</string>
+    <string name="voting_locations_label">Voting Locations</string>
+    <string name="ballot_information_label">Ballot Information</string>
 
     <!-- TODO: Add necessary string values -->
 

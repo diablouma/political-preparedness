@@ -15,15 +15,6 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    fun retrieveVoterInformation(electionId: Int, division: Division) {
-            val address = "${division.country}  ${division.state}"
-            viewModelScope.launch {
-                val voterInfo = CivicsApi.retrofitService.getVoterInfo(electionId, address).await()
-                _electionName.value = voterInfo.election.name
-                _electionDate.value = voterInfo.election.electionDay.toString()
-            }
-    }
-
     //TODO: Add live data to hold voter info
     private val _electionName = MutableLiveData<String>()
     val electionName: LiveData<String>
@@ -33,8 +24,39 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val electionDate: LiveData<String>
         get() = _electionDate
 
-    init {
+    private val _votingLocationsUrl = MutableLiveData<String>()
+    val votingLocationsUrl: LiveData<String>
+        get() = _votingLocationsUrl
 
+    private val _openVotingLocations = MutableLiveData<Boolean>()
+    val openVotingLocations: LiveData<Boolean>
+        get() = _openVotingLocations
+
+    fun retrieveVoterInformation(electionId: Int, division: Division) {
+        val address = "${division.country}  ${division.state}"
+        viewModelScope.launch {
+            val voterInfo = CivicsApi.retrofitService.getVoterInfo(electionId, address).await()
+            _electionName.value = voterInfo.election.name
+            _electionDate.value = voterInfo.election.electionDay.toString()
+
+            if (!voterInfo.state.isNullOrEmpty()) {
+                _votingLocationsUrl.value =
+                    voterInfo.state.first().electionAdministrationBody.votingLocationFinderUrl
+            }
+        }
+    }
+
+
+    init {
+        _votingLocationsUrl.value = null
+    }
+
+    fun onVotingLocationsClicked() {
+        _openVotingLocations.value = true
+    }
+
+    fun onOpenVotingLocationsCompleted() {
+        _openVotingLocations.value = false
     }
 
     //TODO: Add var and methods to populate voter info
