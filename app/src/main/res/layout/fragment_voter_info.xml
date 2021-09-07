@@ -39,7 +39,6 @@
             app:layout_constraintTop_toBottomOf="@id/election_name"
             tools:text="12 November 2055" />
 
-        <!-- TODO: Add visual styling and content -->
         <TextView
             android:id="@+id/state_header"
             android:layout_width="wrap_content"
@@ -50,8 +49,6 @@
             app:layout_constraintStart_toStartOf="@id/election_date"
             app:layout_constraintTop_toBottomOf="@id/election_date" />
 
-        <!-- TODO: Add click binding to open web URL -->
-        <!-- TODO: Add visual styling and content -->
         <TextView
             android:id="@+id/state_locations"
             android:layout_width="wrap_content"
@@ -59,7 +56,7 @@
             android:layout_marginTop="8dp"
             android:onClick="@{() -> voterInfoViewModel.onVotingLocationsClicked()}"
             android:text="@string/voting_locations_label"
-            android:visibility="@{voterInfoViewModel.votingLocationsUrl == null || voterInfoViewModel.votingLocationsUrl == `` ? View.VISIBLE : View.GONE }"
+            android:visibility="@{voterInfoViewModel.votingLocationsUrl == null || voterInfoViewModel.votingLocationsUrl == `` ? View.GONE : View.VISIBLE }"
             app:layout_constraintStart_toStartOf="@id/election_date"
             app:layout_constraintTop_toBottomOf="@id/state_header" />
 
@@ -69,6 +66,8 @@
             android:id="@+id/state_ballot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> voterInfoViewModel.onBallotInformationClicked()}"
+            android:visibility="@{voterInfoViewModel.ballotInformationUrl == null || voterInfoViewModel.ballotInformationUrl == `` ? View.GONE : View.VISIBLE }"
             android:text="@string/ballot_information_label"
             app:layout_constraintStart_toStartOf="@id/election_date"
             app:layout_constraintTop_toBottomOf="@id/state_locations" />

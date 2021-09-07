@@ -32,6 +32,14 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val openVotingLocations: LiveData<Boolean>
         get() = _openVotingLocations
 
+    private val _ballotInformationUrl = MutableLiveData<String>()
+    val ballotInformationUrl: LiveData<String>
+        get() = _ballotInformationUrl
+
+    private val _openBallotInformation = MutableLiveData<Boolean>()
+    val openBallotInformation: LiveData<Boolean>
+        get() = _openBallotInformation
+
     fun retrieveVoterInformation(electionId: Int, division: Division) {
         val address = "${division.country}  ${division.state}"
         viewModelScope.launch {
@@ -42,6 +50,9 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
             if (!voterInfo.state.isNullOrEmpty()) {
                 _votingLocationsUrl.value =
                     voterInfo.state.first().electionAdministrationBody.votingLocationFinderUrl
+
+                _ballotInformationUrl.value =
+                    voterInfo.state.first().electionAdministrationBody.ballotInfoUrl
             }
         }
     }
@@ -49,6 +60,7 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
 
     init {
         _votingLocationsUrl.value = null
+        _ballotInformationUrl.value = null
     }
 
     fun onVotingLocationsClicked() {
@@ -57,6 +69,14 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
 
     fun onOpenVotingLocationsCompleted() {
         _openVotingLocations.value = false
+    }
+
+    fun onBallotInformationClicked() {
+        _openBallotInformation.value = true
+    }
+
+    fun onOpenBallotInformationCompleted() {
+        _openBallotInformation.value = false
     }
 
     //TODO: Add var and methods to populate voter info

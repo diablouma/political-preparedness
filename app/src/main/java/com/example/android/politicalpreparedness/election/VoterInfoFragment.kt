@@ -49,10 +49,21 @@ class VoterInfoFragment : Fragment() {
             viewLifecycleOwner,
             Observer { openVotingLocations ->
                 if (openVotingLocations) {
-                    val uri: Uri = Uri.parse(voterInfoViewModel.votingLocationsUrl.value) // missing 'http://' will cause crashed
+                    val uri: Uri = Uri.parse(voterInfoViewModel.votingLocationsUrl.value)
                     val intent = Intent(Intent.ACTION_VIEW, uri)
                     startActivity(intent)
                     voterInfoViewModel.onOpenVotingLocationsCompleted()
+                }
+            })
+
+        voterInfoViewModel.openBallotInformation.observe(
+            viewLifecycleOwner,
+            Observer { openBallotInformation ->
+                if (openBallotInformation) {
+                    val uri: Uri = Uri.parse(voterInfoViewModel.ballotInformationUrl.value)
+                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                    startActivity(intent)
+                    voterInfoViewModel.onOpenBallotInformationCompleted()
                 }
             })
 
