@@ -40,9 +40,7 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val openBallotInformation: LiveData<Boolean>
         get() = _openBallotInformation
 
-    private val _electionSavedInDB = MutableLiveData<Election>()
-    val electionSavedInDB: LiveData<Election>
-        get() = _electionSavedInDB
+    var electionSavedInDB: LiveData<Election>
 
     private val _electionId = MutableLiveData<Int>()
     private val _division = MutableLiveData<Division>()
@@ -51,7 +49,7 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
         val address = "${division.country}  ${division.state}"
         viewModelScope.launch {
             initVoterInfo(electionId, address)
-            _electionSavedInDB.value = dataSource.getById(electionId).value
+            electionSavedInDB = dataSource.getById(electionId)
         }
     }
 
@@ -78,6 +76,7 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     init {
         _votingLocationsUrl.value = null
         _ballotInformationUrl.value = null
+        electionSavedInDB = MutableLiveData<Election>()
     }
 
     fun onVotingLocationsClicked() {
