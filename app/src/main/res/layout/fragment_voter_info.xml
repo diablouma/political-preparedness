@@ -67,8 +67,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="@{() -> voterInfoViewModel.onBallotInformationClicked()}"
-            android:visibility="@{voterInfoViewModel.ballotInformationUrl == null || voterInfoViewModel.ballotInformationUrl == `` ? View.GONE : View.VISIBLE }"
             android:text="@string/ballot_information_label"
+            android:visibility="@{voterInfoViewModel.ballotInformationUrl == null || voterInfoViewModel.ballotInformationUrl == `` ? View.GONE : View.VISIBLE }"
             app:layout_constraintStart_toStartOf="@id/election_date"
             app:layout_constraintTop_toBottomOf="@id/state_locations" />
 
@@ -104,6 +104,7 @@
             android:background="@color/colorPrimary"
             android:text="@string/follow_election_button"
             android:textColor="@color/white"
+            android:visibility="@{voterInfoViewModel.areWeFollowingElection ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -120,6 +121,7 @@
             android:background="@color/colorPrimary"
             android:text="@string/unfollow_election_button"
             android:textColor="@color/white"
+            android:visibility="@{voterInfoViewModel.areWeFollowingElection ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

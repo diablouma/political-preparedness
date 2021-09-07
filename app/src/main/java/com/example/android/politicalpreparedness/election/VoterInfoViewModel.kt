@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Division
+import com.example.android.politicalpreparedness.network.models.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +16,6 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    //TODO: Add live data to hold voter info
     private val _electionName = MutableLiveData<String>()
     val electionName: LiveData<String>
         get() = _electionName
@@ -40,20 +40,32 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val openBallotInformation: LiveData<Boolean>
         get() = _openBallotInformation
 
+    private val _areWeFollowingElection = MutableLiveData<Boolean>()
+    val areWeFollowingElection: LiveData<Boolean>
+    get() = _areWeFollowingElection
+
     fun retrieveVoterInformation(electionId: Int, division: Division) {
         val address = "${division.country}  ${division.state}"
         viewModelScope.launch {
-            val voterInfo = CivicsApi.retrofitService.getVoterInfo(electionId, address).await()
-            _electionName.value = voterInfo.election.name
-            _electionDate.value = voterInfo.election.electionDay.toString()
+            initVoterInfo(electionId, address)
+            _areWeFollowingElection.value = dataSource.getById(electionId).value != null
+        }
+    }
 
-            if (!voterInfo.state.isNullOrEmpty()) {
-                _votingLocationsUrl.value =
-                    voterInfo.state.first().electionAdministrationBody.votingLocationFinderUrl
+    private suspend fun initVoterInfo(
+        electionId: Int,
+        address: String
+    ) {
+        val voterInfo = CivicsApi.retrofitService.getVoterInfo(electionId, address).await()
+        _electionName.value = voterInfo.election.name
+        _electionDate.value = voterInfo.election.electionDay.toString()
 
-                _ballotInformationUrl.value =
-                    voterInfo.state.first().electionAdministrationBody.ballotInfoUrl
-            }
+        if (!voterInfo.state.isNullOrEmpty()) {
+            _votingLocationsUrl.value =
+                voterInfo.state.first().electionAdministrationBody.votingLocationFinderUrl
+
+            _ballotInformationUrl.value =
+                voterInfo.state.first().electionAdministrationBody.ballotInfoUrl
         }
     }
 
