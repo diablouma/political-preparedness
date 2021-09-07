@@ -12,7 +12,7 @@ interface ElectionDao {
 
     //TODO: Add insert query
     @Insert
-    fun insert(election: Election)
+    suspend fun insert(election: Election)
 
     //TODO: Add select all election query
     @Query("SELECT * FROM election_table")

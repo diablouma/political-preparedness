@@ -3,6 +3,7 @@ package com.example.android.politicalpreparedness.election
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -66,6 +67,10 @@ class VoterInfoFragment : Fragment() {
                     voterInfoViewModel.onOpenBallotInformationCompleted()
                 }
             })
+
+        voterInfoViewModel.electionSavedInDB.observe(viewLifecycleOwner, Observer { savedElection ->
+                Log.i(this.javaClass.simpleName, savedElection.id.toString())
+        })
 
         //TODO: Handle loading of URLs
 

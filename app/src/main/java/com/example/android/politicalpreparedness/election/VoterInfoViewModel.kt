@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Division
+import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.network.models.State
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import java.util.*
 
 class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     private val viewModelJob = SupervisorJob()
@@ -20,8 +20,8 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val electionName: LiveData<String>
         get() = _electionName
 
-    private val _electionDate = MutableLiveData<String>()
-    val electionDate: LiveData<String>
+    private val _electionDate = MutableLiveData<Date>()
+    val electionDate: LiveData<Date>
         get() = _electionDate
 
     private val _votingLocationsUrl = MutableLiveData<String>()
@@ -40,15 +40,18 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val openBallotInformation: LiveData<Boolean>
         get() = _openBallotInformation
 
-    private val _areWeFollowingElection = MutableLiveData<Boolean>()
-    val areWeFollowingElection: LiveData<Boolean>
-    get() = _areWeFollowingElection
+    private val _electionSavedInDB = MutableLiveData<Election>()
+    val electionSavedInDB: LiveData<Election>
+        get() = _electionSavedInDB
+
+    private val _electionId = MutableLiveData<Int>()
+    private val _division = MutableLiveData<Division>()
 
     fun retrieveVoterInformation(electionId: Int, division: Division) {
         val address = "${division.country}  ${division.state}"
         viewModelScope.launch {
             initVoterInfo(electionId, address)
-            _areWeFollowingElection.value = dataSource.getById(electionId).value != null
+            _electionSavedInDB.value = dataSource.getById(electionId).value
         }
     }
 
@@ -58,7 +61,9 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     ) {
         val voterInfo = CivicsApi.retrofitService.getVoterInfo(electionId, address).await()
         _electionName.value = voterInfo.election.name
-        _electionDate.value = voterInfo.election.electionDay.toString()
+        _electionDate.value = voterInfo.election.electionDay
+        _electionId.value = voterInfo.election.id
+        _division.value = voterInfo.election.division
 
         if (!voterInfo.state.isNullOrEmpty()) {
             _votingLocationsUrl.value =
@@ -89,6 +94,19 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
 
     fun onOpenBallotInformationCompleted() {
         _openBallotInformation.value = false
+    }
+
+    fun followElection() {
+        viewModelScope.launch {
+            dataSource.insert(
+                Election(
+                    _electionId.value!!,
+                    _electionName.value!!,
+                    _electionDate.value!!,
+                    _division.value!!
+                )
+            )
+        }
     }
 
     //TODO: Add var and methods to populate voter info

@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/default_padding"
-            android:text="@{voterInfoViewModel.electionDate}"
+            android:text="@{voterInfoViewModel.electionDate.toString()}"
             app:layout_constraintTop_toBottomOf="@id/election_name"
             tools:text="12 November 2055" />
 
@@ -96,6 +96,7 @@
 
         <Button
             android:id="@+id/follow_election_button"
+            android:onClick="@{() -> voterInfoViewModel.followElection()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -104,7 +105,7 @@
             android:background="@color/colorPrimary"
             android:text="@string/follow_election_button"
             android:textColor="@color/white"
-            android:visibility="@{voterInfoViewModel.areWeFollowingElection ? View.GONE : View.VISIBLE}"
+            android:visibility="@{voterInfoViewModel.electionSavedInDB != null ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -121,14 +122,12 @@
             android:background="@color/colorPrimary"
             android:text="@string/unfollow_election_button"
             android:textColor="@color/white"
-            android:visibility="@{voterInfoViewModel.areWeFollowingElection ? View.VISIBLE : View.GONE}"
+            android:visibility="@{voterInfoViewModel.electionSavedInDB != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/address"
             app:layout_constraintVertical_bias="1.0" />
-
-        <!-- TODO: Add button to save election to Room -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
