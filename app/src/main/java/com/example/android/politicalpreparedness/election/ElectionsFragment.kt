@@ -54,7 +54,7 @@ class ElectionsFragment : Fragment() {
         binding.electionsList.layoutManager = manager
 
         val upcomingElectionsAdapter = ElectionListAdapter(ElectionListener { selectedElection ->
-            electionsViewModel.onUpcomingElectionClicked(selectedElection)
+            electionsViewModel.onElectionClicked(selectedElection)
         })
 
         binding.electionsList.adapter = upcomingElectionsAdapter
@@ -64,7 +64,7 @@ class ElectionsFragment : Fragment() {
         })
 
         val savedElectionsAdapter = ElectionListAdapter(ElectionListener { selectedElection ->
-//            electionsViewModel.onUpcomingElectionClicked(selectedElection)
+            electionsViewModel.onElectionClicked(selectedElection)
         })
 
         val managerForSavedElections = GridLayoutManager(activity, 1)

@@ -61,7 +61,7 @@ class ElectionsViewModel(
         }
     }
 
-    fun onUpcomingElectionClicked(selectedElection: Election) {
+    fun onElectionClicked(selectedElection: Election) {
         _navigateToSelectedElectionScreen.value = selectedElection
     }
 
