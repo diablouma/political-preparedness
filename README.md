@@ -1,4 +1,9 @@
+## API KEY Usage
+Please create a apikey.properties file in the root folder, with the following content
+GOOGLE_CIVICS_API_KEY="YOUR_API_KEY_HERE"
+
 ## Political Preparedness
+
 
 PolitcalPreparedness is an example application built to demonstrate core Android Development skills as presented in the Udacity Android Developers Kotlin curriculum. 
 
