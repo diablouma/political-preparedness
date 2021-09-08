@@ -7,8 +7,8 @@
 
     <!-- TODO: Add motion scene to hide form on vertical scroll. -->
     <androidx.constraintlayout.motion.widget.MotionLayout
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layoutDescription="@xml/fragment_representative_scene">
 
         <!-- TODO: Add visual styling and content -->
@@ -25,7 +25,8 @@
             android:id="@+id/address_line_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="@string/address_line_hint"
+            android:autofillHints="address"
+            android:hint="@string/address_line_hint"
             android:inputType="textPostalAddress"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/search_title" />
@@ -36,7 +37,8 @@
             android:id="@+id/address_line_2"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:autofillHints="@string/address_line_2_hint"
+            android:autofillHints="address"
+            android:hint="@string/address_line_2_hint"
             android:inputType="textPostalAddress"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/address_line_1" />
@@ -49,8 +51,8 @@
             android:layout_height="wrap_content"
             android:autofillHints="@string/city_hint"
             android:inputType="textPostalAddress"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/state"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/address_line_2" />
 
         <!-- TODO: Add default values from provided resources  -->
@@ -61,10 +63,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:inputType="textPostalAddress"
-            app:layout_constraintStart_toEndOf="@id/city"
+            app:layout_constraintBottom_toBottomOf="@id/city"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/city"
-            app:layout_constraintBottom_toBottomOf="@id/city"/>
+            app:layout_constraintStart_toEndOf="@id/city"
+            app:layout_constraintTop_toTopOf="@id/city" />
 
         <!-- TODO: Add data binding value -->
         <!-- TODO: Add visual styling and content -->
@@ -72,31 +74,32 @@
             android:id="@+id/zip"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:autofillHints="@string/zipcode_hint"
+            android:autofillHints="zipcode"
+            android:hint="@string/zipcode_hint"
             android:inputType="number"
             android:maxLength="5"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="@id/city"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/city" />
 
         <!-- TODO: Add visual styling and label -->
         <Button
             android:id="@+id/button_search"
-            android:text="@string/find_my_representatives"
-            android:background="@color/colorPrimary"
-            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="@string/find_my_representatives"
+            android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/zip" />
 
         <!-- TODO: Add visual styling and content -->
         <Button
             android:id="@+id/button_location"
-            android:text="@string/use_my_location"
-            android:background="@color/colorPrimary"
-            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="@string/use_my_location"
+            android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/button_search" />
 
         <!-- TODO: Add visual styling and content -->
@@ -117,9 +120,9 @@
             android:gravity="center"
             android:textAlignment="center"
             android:visibility="gone"
-            motion:visibilityMode="ignore"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/representative_title"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            motion:visibilityMode="ignore" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>
