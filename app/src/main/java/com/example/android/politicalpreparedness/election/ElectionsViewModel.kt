@@ -24,9 +24,7 @@ class ElectionsViewModel(
     val upcomingElections: LiveData<List<Election>>
         get() = _upcomingElections
 
-    private val _savedElections = MutableLiveData<List<Election>>()
-    val savedElections: LiveData<List<Election>>
-        get() = _savedElections
+    var savedElections = database.getAll()
 
     private val _navigateToSelectedElectionScreen = MutableLiveData<Election>()
     val navigateToSelectedElectionScreen: LiveData<Election>
@@ -49,8 +47,6 @@ class ElectionsViewModel(
                     "No Internet connection available, not loading picture of day"
                 )
             }
-
-            _savedElections.value = database.getAll().value
         }
     }
 
@@ -71,6 +67,10 @@ class ElectionsViewModel(
 
     fun onNavigateToSelectedElectionScreenCompleted() {
         _navigateToSelectedElectionScreen.value = null
+    }
+
+    fun retrieveSavedElections() {
+        savedElections = database.getAll()
     }
 
     //TODO: Create live data val for saved elections
