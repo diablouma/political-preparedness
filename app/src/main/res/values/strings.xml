@@ -15,6 +15,8 @@
     <string name="address_line_2_hint">2nd floor</string>
     <string name="city_hint">Mountain View</string>
     <string name="zipcode_hint">28016</string>
+    <string name="find_my_representatives">FIND MY REPRESENTATIVES</string>
+    <string name="use_my_location">USE MY LOCATION</string>
 
     <!-- TODO: Add necessary string values -->
 

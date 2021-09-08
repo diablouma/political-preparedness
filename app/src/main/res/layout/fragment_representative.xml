@@ -82,6 +82,9 @@
         <!-- TODO: Add visual styling and label -->
         <Button
             android:id="@+id/button_search"
+            android:text="@string/find_my_representatives"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/zip" />
@@ -89,6 +92,9 @@
         <!-- TODO: Add visual styling and content -->
         <Button
             android:id="@+id/button_location"
+            android:text="@string/use_my_location"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/button_search" />
