@@ -5,9 +5,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.database.ElectionDatabase
 import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
 
@@ -23,7 +25,7 @@ class VoterInfoFragment : Fragment() {
         //TODO: Add ViewModel values and create ViewModel
 
         //TODO: Add binding values
-        val binding = FragmentVoterInfoBinding.inflate(inflater)
+        val binding: FragmentVoterInfoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_voter_info, container, false)
         binding.lifecycleOwner = this
 
         //TODO: Populate voter info -- hide views without provided data.
@@ -42,9 +44,10 @@ class VoterInfoFragment : Fragment() {
                 this, viewModelFactory
             ).get(VoterInfoViewModel::class.java)
 
-        voterInfoViewModel.retrieveVoterInformation(electionId, division)
-
         binding.voterInfoViewModel = voterInfoViewModel
+
+        voterInfoViewModel.retrieveVoterInformation(electionId, division)
+        voterInfoViewModel.retrieveElectionFromDB(electionId)
 
         voterInfoViewModel.openVotingLocations.observe(
             viewLifecycleOwner,
@@ -69,7 +72,11 @@ class VoterInfoFragment : Fragment() {
             })
 
         voterInfoViewModel.electionSavedInDB.observe(viewLifecycleOwner, Observer { savedElection ->
-                Log.i(this.javaClass.simpleName, savedElection.id.toString())
+            Log.i("Pepe", "3" + (savedElection != null).toString())
+                if(savedElection != null) {
+                    Log.i(this.javaClass.simpleName, savedElection.id.toString())
+                }
+
         })
 
         //TODO: Handle loading of URLs

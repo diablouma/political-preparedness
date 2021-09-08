@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.database.ElectionDatabase
 import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
 import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
@@ -27,7 +29,7 @@ class ElectionsFragment : Fragment() {
         //TODO: Add ViewModel values and create ViewModel
 
         //TODO: Add binding values
-        val binding = FragmentElectionBinding.inflate(inflater)
+        val binding: FragmentElectionBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_election, container, false)
 
         val application = requireNotNull(this.activity).application
 
@@ -48,15 +50,27 @@ class ElectionsFragment : Fragment() {
         val manager = GridLayoutManager(activity, 1)
         binding.electionsList.layoutManager = manager
 
-        val adapter = ElectionListAdapter(ElectionListener { selectedElection ->
+        val upcomingElectionsAdapter = ElectionListAdapter(ElectionListener { selectedElection ->
             electionsViewModel.onUpcomingElectionClicked(selectedElection)
         })
 
-        binding.electionsList.adapter = adapter
+        binding.electionsList.adapter = upcomingElectionsAdapter
 
         electionsViewModel.upcomingElections.observe(viewLifecycleOwner, Observer {
-            adapter.submitList(it)
+            upcomingElectionsAdapter.submitList(it)
         })
+
+        val savedElectionsAdapter = ElectionListAdapter(ElectionListener { selectedElection ->
+//            electionsViewModel.onUpcomingElectionClicked(selectedElection)
+        })
+
+        val managerForSavedElections = GridLayoutManager(activity, 1)
+        binding.savedElectionsList.layoutManager = managerForSavedElections
+        binding.savedElectionsList.adapter = savedElectionsAdapter
+        electionsViewModel.savedElections.observe(viewLifecycleOwner, Observer {
+            savedElectionsAdapter.submitList(it)
+        })
+
 
         electionsViewModel.navigateToSelectedElectionScreen.observe(viewLifecycleOwner, Observer { selectedElection ->
             if (selectedElection != null) {

@@ -11,6 +11,7 @@ import com.example.android.politicalpreparedness.network.models.State
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import java.util.*
+import android.util.Log
 
 class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     private val viewModelJob = SupervisorJob()
@@ -40,16 +41,16 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     val openBallotInformation: LiveData<Boolean>
         get() = _openBallotInformation
 
-    var electionSavedInDB: LiveData<Election>
+    var electionSavedInDB = dataSource.getById(-1)
 
     private val _electionId = MutableLiveData<Int>()
     private val _division = MutableLiveData<Division>()
 
     fun retrieveVoterInformation(electionId: Int, division: Division) {
+        Log.i("Pepe", "1")
         val address = "${division.country}  ${division.state}"
         viewModelScope.launch {
             initVoterInfo(electionId, address)
-            electionSavedInDB = dataSource.getById(electionId)
         }
     }
 
@@ -74,9 +75,9 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
 
 
     init {
+        Log.i("Pepe", "2")
         _votingLocationsUrl.value = null
         _ballotInformationUrl.value = null
-        electionSavedInDB = MutableLiveData<Election>()
     }
 
     fun onVotingLocationsClicked() {
@@ -106,6 +107,10 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
                 )
             )
         }
+    }
+
+    fun retrieveElectionFromDB(electionId: Int) {
+            electionSavedInDB = dataSource.getById(electionId)
     }
 
     //TODO: Add var and methods to populate voter info
