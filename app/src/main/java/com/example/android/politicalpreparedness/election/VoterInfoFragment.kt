@@ -72,7 +72,6 @@ class VoterInfoFragment : Fragment() {
             })
 
         voterInfoViewModel.electionSavedInDB.observe(viewLifecycleOwner, Observer { savedElection ->
-            Log.i("Pepe", "3" + (savedElection != null).toString())
                 if(savedElection != null) {
                     Log.i(this.javaClass.simpleName, savedElection.id.toString())
                 }

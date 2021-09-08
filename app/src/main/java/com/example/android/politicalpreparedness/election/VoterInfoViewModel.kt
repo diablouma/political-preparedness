@@ -47,7 +47,6 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
     private val _division = MutableLiveData<Division>()
 
     fun retrieveVoterInformation(electionId: Int, division: Division) {
-        Log.i("Pepe", "1")
         val address = "${division.country}  ${division.state}"
         viewModelScope.launch {
             initVoterInfo(electionId, address)
@@ -75,7 +74,6 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
 
 
     init {
-        Log.i("Pepe", "2")
         _votingLocationsUrl.value = null
         _ballotInformationUrl.value = null
     }
@@ -106,6 +104,14 @@ class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
                     _division.value!!
                 )
             )
+        }
+    }
+
+    fun unfollowElection() {
+        viewModelScope.launch {
+            if(_electionId.value != null) {
+                dataSource.delete(_electionId.value!!)
+            }
         }
     }
 
