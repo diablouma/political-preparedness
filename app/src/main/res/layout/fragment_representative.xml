@@ -4,6 +4,11 @@
     xmlns:motion="http://schemas.android.com/tools">
 
     <!-- TODO: Add data binding node -->
+    <data>
+        <variable
+            name="representativeViewModel"
+            type="com.example.android.politicalpreparedness.representative.RepresentativeViewModel" />
+    </data>
 
     <!-- TODO: Add motion scene to hide form on vertical scroll. -->
     <androidx.constraintlayout.motion.widget.MotionLayout
@@ -49,7 +54,8 @@
             android:id="@+id/city"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:autofillHints="@string/city_hint"
+            android:autofillHints="city"
+            android:hint="@string/city_hint"
             android:inputType="textPostalAddress"
             app:layout_constraintEnd_toStartOf="@id/state"
             app:layout_constraintStart_toStartOf="parent"
@@ -63,6 +69,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:inputType="textPostalAddress"
+            app:stateValue="@{representativeViewModel.state}"
+            android:entries="@array/states"
             app:layout_constraintBottom_toBottomOf="@id/city"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/city"
