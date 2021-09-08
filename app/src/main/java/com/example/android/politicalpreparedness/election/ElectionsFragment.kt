@@ -72,7 +72,6 @@ class ElectionsFragment : Fragment() {
         binding.savedElectionsList.adapter = savedElectionsAdapter
 
         electionsViewModel.savedElections.observe(viewLifecycleOwner, Observer {
-            Log.i("PEPE", "SavedElections" + (it!=null).toString())
             savedElectionsAdapter.submitList(it)
         })
 
