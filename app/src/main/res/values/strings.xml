@@ -11,6 +11,10 @@
     <string name="ballot_information_label">Ballot Information</string>
     <string name="follow_election_button">FOLLOW ELECTION</string>
     <string name="unfollow_election_button">UNFOLLOW ELECTION</string>
+    <string name="address_line_hint">an address line</string>
+    <string name="address_line_2_hint">2nd floor</string>
+    <string name="city_hint">Mountain View</string>
+    <string name="zipcode_hint">28016</string>
 
     <!-- TODO: Add necessary string values -->
 
