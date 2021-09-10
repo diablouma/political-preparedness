@@ -43,8 +43,8 @@ class ElectionsViewModel(
                 _upcomingElections.value = electionsFromInternet
             } else {
                 Log.i(
-                    "MainViewModel",
-                    "No Internet connection available, not loading picture of day"
+                    this.javaClass.simpleName,
+                    "No Internet connection available, not loading elections."
                 )
             }
         }

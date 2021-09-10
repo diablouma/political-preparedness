@@ -4,6 +4,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Spinner
 import androidx.core.net.toUri
+import androidx.databinding.Bindable
 import androidx.databinding.BindingAdapter
 
 @BindingAdapter("profileImage")
