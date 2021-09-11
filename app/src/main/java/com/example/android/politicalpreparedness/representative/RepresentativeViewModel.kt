@@ -10,6 +10,7 @@ import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.ResourceProvider
 import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Official
+import com.example.android.politicalpreparedness.network.models.RepresentativeResponse
 import com.example.android.politicalpreparedness.representative.model.Representative
 import kotlinx.coroutines.*
 import java.net.InetAddress
@@ -99,8 +100,8 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
         }
     }
 
-    val _representatives = MutableLiveData<List<Official>>()
-    val representatives: LiveData<List<Official>>
+    val _representatives = MutableLiveData<List<Representative>>()
+    val representatives: LiveData<List<Representative>>
         get() = _representatives
 
 
@@ -108,8 +109,10 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
         viewModelScope.launch {
             if (isInternetAvailable()) {
                 _representatives.value =
-                    CivicsApi.retrofitService.getRepresentatives(joinAddress())
-                        .await().officials
+                    mapRepresentativesFromCivicsApi(
+                        CivicsApi.retrofitService.getRepresentatives(joinAddress())
+                            .await()
+                    )
             } else {
                 Log.i(
                     this.javaClass.simpleName,
@@ -117,6 +120,16 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
                 )
             }
         }
+    }
+
+    private fun mapRepresentativesFromCivicsApi(representativeResponse: RepresentativeResponse): List<Representative> {
+        val officialsWithAllInformation = representativeResponse.officials
+        val result = mutableListOf<Representative>()
+        representativeResponse.offices.forEach {
+            result += it.getRepresentatives(officialsWithAllInformation)
+        }
+
+        return result
     }
 
     private fun getSelectedState(): String {

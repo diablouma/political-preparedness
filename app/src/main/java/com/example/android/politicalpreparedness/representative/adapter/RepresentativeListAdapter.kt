@@ -14,8 +14,9 @@ import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.RepresentativeItemBinding
 import com.example.android.politicalpreparedness.network.models.Channel
 import com.example.android.politicalpreparedness.network.models.Official
+import com.example.android.politicalpreparedness.representative.model.Representative
 
-class RepresentativeListAdapter: ListAdapter<Official, RepresentativeViewHolder>(RepresentativeDiffCallback()){
+class RepresentativeListAdapter: ListAdapter<Representative, RepresentativeViewHolder>(RepresentativeDiffCallback()){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepresentativeViewHolder {
         return RepresentativeViewHolder.from(parent)
@@ -29,12 +30,12 @@ class RepresentativeListAdapter: ListAdapter<Official, RepresentativeViewHolder>
 
 class RepresentativeViewHolder(val binding: RepresentativeItemBinding): RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: Official) {
+    fun bind(item: Representative) {
         binding.representative = item
         binding.representativePic.setImageResource(R.drawable.ic_profile)
 
-        showSocialLinks(item.channels ?: ArrayList())
-        showWWWLinks(item.urls ?: ArrayList())
+        showSocialLinks(item.official.channels ?: ArrayList())
+        showWWWLinks(item.official.urls ?: ArrayList())
 
         binding.executePendingBindings()
     }
@@ -86,16 +87,16 @@ class RepresentativeViewHolder(val binding: RepresentativeItemBinding): Recycler
 
 }
 
-class RepresentativeDiffCallback : DiffUtil.ItemCallback<Official>() {
-    override fun areItemsTheSame(oldItem: Official, newItem: Official): Boolean {
-        return oldItem.name == newItem.name
+class RepresentativeDiffCallback : DiffUtil.ItemCallback<Representative>() {
+    override fun areItemsTheSame(oldItem: Representative, newItem: Representative): Boolean {
+        return oldItem.official.name == newItem.official.name
     }
 
-    override fun areContentsTheSame(oldItem: Official, newItem: Official): Boolean {
+    override fun areContentsTheSame(oldItem: Representative, newItem: Representative): Boolean {
         return oldItem == newItem
     }
 }
 
-class RepresentativeListener(val clickListener: (representative: Official) -> Unit) {
-    fun onClick(representative: Official) = clickListener(representative)
+class RepresentativeListener(val clickListener: (representative: Representative) -> Unit) {
+    fun onClick(representative: Representative) = clickListener(representative)
 }
