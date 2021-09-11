@@ -7,11 +7,17 @@ import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.politicalpreparedness.ResourceProvider
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
 import com.example.android.politicalpreparedness.election.ElectionsViewModel
+import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
+import com.example.android.politicalpreparedness.election.adapter.ElectionListener
 import com.example.android.politicalpreparedness.network.models.Address
+import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
+import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListener
 import java.util.Locale
 
 class DetailFragment : Fragment() {
@@ -37,8 +43,15 @@ class DetailFragment : Fragment() {
         //TODO: Establish bindings
 
         //TODO: Define and assign Representative adapter
+        val manager = GridLayoutManager(activity, 1)
+        binding.representativesList.layoutManager = manager
 
-        //TODO: Populate Representative adapter
+        val representativeListAdapter = RepresentativeListAdapter()
+        binding.representativesList.adapter = representativeListAdapter
+
+        representativeViewModel.representatives.observe(viewLifecycleOwner, Observer {
+            representativeListAdapter.submitList(it)
+        })
 
         //TODO: Establish button listeners for field and location search
 

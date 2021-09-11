@@ -40,7 +40,6 @@ class ElectionViewHolder private constructor(val binding: ElectionItemBinding) :
     }
 }
 
-//TODO: Create ElectionDiffCallback
 class ElectionDiffCallback : DiffUtil.ItemCallback<Election>() {
     override fun areItemsTheSame(oldItem: Election, newItem: Election): Boolean {
         return oldItem.id == newItem.id
@@ -51,7 +50,6 @@ class ElectionDiffCallback : DiffUtil.ItemCallback<Election>() {
     }
 }
 
-//TODO: Create ElectionListener
 class ElectionListener(val clickListener: (election: Election) -> Unit) {
     fun onClick(election: Election) = clickListener(election)
 }

@@ -10,6 +10,7 @@ import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.ResourceProvider
 import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Official
+import com.example.android.politicalpreparedness.representative.model.Representative
 import kotlinx.coroutines.*
 import java.net.InetAddress
 
@@ -148,7 +149,5 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
      */
 
     //TODO: Create function get address from geo location
-
-    //TODO: Create function to get address from individual fields
 
 }
