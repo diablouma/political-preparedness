@@ -75,7 +75,12 @@ class DetailFragment : Fragment() {
             requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         binding.buttonLocation.setOnClickListener {
-            checkLocationPermissions();
+            checkLocationPermissions()
+            hideKeyboard()
+        }
+
+        binding.buttonSearch.setOnClickListener {
+            hideKeyboard()
         }
 
         representativeViewModel.geoCodedLocation.observe(viewLifecycleOwner, Observer {
@@ -85,11 +90,18 @@ class DetailFragment : Fragment() {
             }
         })
 
-        representativeViewModel.representativesFound.observe(viewLifecycleOwner, Observer { representativesFound ->
-            if (!representativesFound) {
-                Toast.makeText(requireContext(), R.string.representatives_not_found, Toast.LENGTH_SHORT).show()
-            }
-        })
+        representativeViewModel.representativesFound.observe(
+            viewLifecycleOwner,
+            Observer { representativesFound ->
+                if (!representativesFound) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.representatives_not_found,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                hideKeyboard()
+            })
 
         return binding.root
     }
@@ -127,7 +139,8 @@ class DetailFragment : Fragment() {
     private fun checkLocationPermissions() {
         if (isPermissionGranted()) {
             if (lastKnownLocation == null) {
-                lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                lastKnownLocation =
+                    locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             }
 
             representativeViewModel.geoCodedLocation.value = geoCodeLocation(lastKnownLocation!!)
@@ -198,7 +211,8 @@ class DetailFragment : Fragment() {
                 lastKnownLocation =
                     locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 if (lastKnownLocation != null) {
-                    representativeViewModel.geoCodedLocation.value = geoCodeLocation(lastKnownLocation!!)
+                    representativeViewModel.geoCodedLocation.value =
+                        geoCodeLocation(lastKnownLocation!!)
                 }
             }
 
