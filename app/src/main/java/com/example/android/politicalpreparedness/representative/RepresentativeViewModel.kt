@@ -21,6 +21,7 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
 
     val geoCodedLocation = MutableLiveData<Address>()
     val representativesFound = MutableLiveData<Boolean>()
+    val representativesSearchByLocationCompleted = MutableLiveData<Boolean>()
 
     private var selectedStatePosition: Int = -1
     private var addressLine1: String = ""

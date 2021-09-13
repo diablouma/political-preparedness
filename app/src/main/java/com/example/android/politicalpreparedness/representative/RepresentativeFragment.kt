@@ -79,7 +79,10 @@ class DetailFragment : Fragment() {
         }
 
         representativeViewModel.geoCodedLocation.observe(viewLifecycleOwner, Observer {
-            representativeViewModel.findRepresentativesByGeocodedAddress()
+            if (it != null) {
+                representativeViewModel.findRepresentativesByGeocodedAddress()
+                representativeViewModel.geoCodedLocation.value = null
+            }
         })
 
         representativeViewModel.representativesFound.observe(viewLifecycleOwner, Observer { representativesFound ->
@@ -122,31 +125,12 @@ class DetailFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun checkLocationPermissions() {
-        locationListener = object : LocationListener {
-            @SuppressLint("MissingPermission")
-            override fun onLocationChanged(location: Location) {
-                Log.i(
-                    this.javaClass.simpleName,
-                    "Location has changed:" + location.latitude + "," + location.longitude
-                )
-                representativeViewModel.geoCodedLocation.value = geoCodeLocation(location)
+        if (isPermissionGranted()) {
+            if (lastKnownLocation == null) {
+                lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             }
 
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle?) {}
-
-            override fun onProviderEnabled(provider: String) {}
-
-            override fun onProviderDisabled(provider: String) {
-            }
-        }
-
-        return if (isPermissionGranted()) {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                0,
-                0f,
-                locationListener
-            )
+            representativeViewModel.geoCodedLocation.value = geoCodeLocation(lastKnownLocation!!)
         } else {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
