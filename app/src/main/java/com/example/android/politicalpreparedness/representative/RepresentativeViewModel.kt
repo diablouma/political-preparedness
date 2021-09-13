@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.ResourceProvider
 import com.example.android.politicalpreparedness.network.CivicsApi
-import com.example.android.politicalpreparedness.network.models.Official
+import com.example.android.politicalpreparedness.network.models.Address
 import com.example.android.politicalpreparedness.network.models.RepresentativeResponse
 import com.example.android.politicalpreparedness.representative.model.Representative
 import kotlinx.coroutines.*
@@ -19,6 +19,8 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
+    val geoCodedLocation = MutableLiveData<Address>()
+    val representativesFound = MutableLiveData<Boolean>()
 
     private var selectedStatePosition: Int = -1
     private var addressLine1: String = ""
@@ -106,18 +108,71 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
 
 
     fun findRepresentativesByAddress() {
+        retrieveRepresentativesFromApi(joinAddress())
+    }
+
+    private fun joinAddress() = "$addressLine1 $addressLine2 $city ${getSelectedState()} $zip"
+
+    private fun getSelectedState(): String {
+        val states = resourceProvider.getStringArray(R.array.states)
+        return if (selectedStatePosition != -1) states[selectedStatePosition] else ""
+    }
+
+    fun findRepresentativesByGeocodedAddress() {
+        setTwoWayBindingValuesForAddressForm()
+        retrieveRepresentativesFromApi("${geoCodedLocation.value?.line1} ${geoCodedLocation.value?.line2} ${geoCodedLocation.value?.city} ${geoCodedLocation.value?.state} ${geoCodedLocation.value?.zip}")
+    }
+
+    private fun setTwoWayBindingValuesForAddressForm() {
+        setAddressLine1(geoCodedLocation.value?.line1 ?: "")
+        setAddressLine2(geoCodedLocation.value?.line2 ?: "")
+        setCity(geoCodedLocation.value?.city ?: "")
+        setSelectedStatePosition(getStatePositionFromString(geoCodedLocation.value?.state))
+        setZip(geoCodedLocation.value?.zip ?: "")
+    }
+
+    private fun getStatePositionFromString(state: String?): Int {
+        if (state == null) return -1
+        return resourceProvider.getStringArray(R.array.states).indexOf(state)
+    }
+
+    private fun retrieveRepresentativesFromApi(address: String) {
         viewModelScope.launch {
             if (isInternetAvailable()) {
-                _representatives.value =
-                    mapRepresentativesFromCivicsApi(
-                        CivicsApi.retrofitService.getRepresentatives(joinAddress())
-                            .await()
-                    )
+                try {
+                    _representatives.value =
+                        mapRepresentativesFromCivicsApi(
+                            CivicsApi.retrofitService.getRepresentatives(address)
+                                .await()
+                        )
+                    representativesFound.value = true
+                } catch(httpException: retrofit2.HttpException) {
+                    val NOT_FOUND_CODE = 404
+                    if (httpException.code() == NOT_FOUND_CODE) {
+                        representativesFound.value = false
+                        Log.i(
+                            this.javaClass.simpleName,
+                            "No Representatives found for your location"
+                        )
+                    }
+                }
+
             } else {
                 Log.i(
                     this.javaClass.simpleName,
                     "No Internet connection available, not loading representatives"
                 )
+            }
+        }
+    }
+
+    private suspend fun isInternetAvailable(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val ipAddr: InetAddress = InetAddress.getByName("www.google.com")
+                return@withContext !ipAddr.equals("")
+            } catch (e: Exception) {
+                return@withContext false
             }
         }
     }
@@ -131,25 +186,6 @@ class RepresentativeViewModel(val resourceProvider: ResourceProvider) : BaseObse
 
         return result
     }
-
-    private fun getSelectedState(): String {
-        val states = resourceProvider.getStringArray(R.array.states)
-        return if (selectedStatePosition != -1) states[selectedStatePosition] else ""
-    }
-
-    private fun joinAddress() = "$addressLine1 $addressLine2 $city ${getSelectedState()} $zip"
-
-    private suspend fun isInternetAvailable(): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                val ipAddr: InetAddress = InetAddress.getByName("www.google.com")
-                return@withContext !ipAddr.equals("")
-            } catch (e: Exception) {
-                return@withContext false
-            }
-        }
-    }
-
     /**
      *  The following code will prove helpful in constructing a representative from the API. This code combines the two nodes of the RepresentativeResponse into a single official :
 

@@ -1,26 +1,44 @@
 package com.example.android.politicalpreparedness.representative
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.IntentSender
+import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.ResourceProvider
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
-import com.example.android.politicalpreparedness.election.ElectionsViewModel
-import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
-import com.example.android.politicalpreparedness.election.adapter.ElectionListener
 import com.example.android.politicalpreparedness.network.models.Address
 import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
-import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListener
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.material.snackbar.Snackbar
 import java.util.Locale
 
 class DetailFragment : Fragment() {
+
+    private lateinit var locationManager: LocationManager
+    private lateinit var locationListener: LocationListener
+    private var lastKnownLocation: Location? = null
+    private lateinit var binding: FragmentRepresentativeBinding
 
     companion object {
         //TODO: Add Constant for Location request
@@ -36,7 +54,7 @@ class DetailFragment : Fragment() {
     ): View? {
         representativeViewModel = RepresentativeViewModel(ResourceProvider(requireContext()))
 
-        val binding = FragmentRepresentativeBinding.inflate(inflater)
+        binding = FragmentRepresentativeBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.representativeViewModel = representativeViewModel
 
@@ -53,7 +71,22 @@ class DetailFragment : Fragment() {
             representativeListAdapter.submitList(it)
         })
 
-        //TODO: Establish button listeners for field and location search
+        locationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        binding.buttonLocation.setOnClickListener {
+            checkLocationPermissions();
+        }
+
+        representativeViewModel.geoCodedLocation.observe(viewLifecycleOwner, Observer {
+            representativeViewModel.findRepresentativesByGeocodedAddress()
+        })
+
+        representativeViewModel.representativesFound.observe(viewLifecycleOwner, Observer { representativesFound ->
+            if (!representativesFound) {
+                Toast.makeText(requireContext(), R.string.representatives_not_found, Toast.LENGTH_SHORT).show()
+            }
+        })
 
         return binding.root
     }
@@ -64,26 +97,135 @@ class DetailFragment : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        //TODO: Handle location permission result to get location on permission granted
+        if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                getUserCurrentAddress()
+            }
+        } else {
+            Snackbar.make(
+                binding.representativeFragment,
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(R.string.settings) {
+                    startActivityForResult(Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", requireContext().packageName, null)
+                    }, REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE)
+                }.show()
+        }
     }
 
-    private fun checkLocationPermissions(): Boolean {
+    @SuppressLint("MissingPermission")
+    private fun checkLocationPermissions() {
+        locationListener = object : LocationListener {
+            @SuppressLint("MissingPermission")
+            override fun onLocationChanged(location: Location) {
+                Log.i(
+                    this.javaClass.simpleName,
+                    "Location has changed:" + location.latitude + "," + location.longitude
+                )
+                representativeViewModel.geoCodedLocation.value = geoCodeLocation(location)
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle?) {}
+
+            override fun onProviderEnabled(provider: String) {}
+
+            override fun onProviderDisabled(provider: String) {
+            }
+        }
+
         return if (isPermissionGranted()) {
-            true
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                0,
+                0f,
+                locationListener
+            )
         } else {
-            //TODO: Request Location permissions
-            false
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
         }
     }
 
     private fun isPermissionGranted(): Boolean {
-        //TODO: Check if permission is already granted and return (true = granted, false = denied/other)
-        return true
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
     }
 
-    private fun getLocation() {
-        //TODO: Get location from LocationServices
-        //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE -> {
+                Log.i(this.javaClass.simpleName, "after requesting foregroung permissions")
+                getUserCurrentAddress()
+            }
+            REQUEST_TURN_DEVICE_LOCATION_ON -> {
+                getUserCurrentAddress()
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getUserCurrentAddress() {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(requireActivity())
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(builder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    startIntentSenderForResult(
+                        exception.getResolution().getIntentSender(),
+                        REQUEST_TURN_DEVICE_LOCATION_ON, null, 0, 0, 0, null
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d(
+                        this.javaClass.simpleName,
+                        "Error getting location settings resolution: " + sendEx.message
+                    )
+                }
+            }
+        }
+
+        locationSettingsResponseTask.addOnCompleteListener {
+            if (it.isSuccessful) {
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    0,
+                    0f,
+                    locationListener
+                )
+
+                lastKnownLocation =
+                    locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                if (lastKnownLocation != null) {
+                    representativeViewModel.geoCodedLocation.value = geoCodeLocation(lastKnownLocation!!)
+                }
+            }
+
+        }
+
+        locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+            0,
+            0f,
+            locationListener
+        );
     }
 
     private fun geoCodeLocation(location: Location): Address {
@@ -107,3 +249,6 @@ class DetailFragment : Fragment() {
     }
 
 }
+
+private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
+private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
